@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_inferno/templates *
+recursive-include octoprint_inferno/translations *
+recursive-include octoprint_inferno/static *
