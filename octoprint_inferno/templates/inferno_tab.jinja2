@@ -1,0 +1,39 @@
+<div class="row-fluid">
+  <h4>Chamber Temperature</h4>
+
+  <div id='chamber_plot'><!-- Plotly chart will be drawn inside this DIV --></div>
+
+  <div class="row-fluid upload-buttons">
+    <span class="btn btn-primary span6" data-bind="click: btnDownloadCSV">
+        <i class="fa fa-download"></i>
+        <span>Download CSV</span>
+    </span>
+    <span class="btn btn-primary span6" data-bind="click: btnDeleteCSV">
+        <i class="fa fa-eraser"></i>
+        <span>Delete Log</span>
+    </span>
+  </div>
+</div>
+<br />
+<div class="row-fluid">
+
+</div>
+<div class="row-fluid">
+  <table class="table table-bordered table-hover">
+        <tr>
+            <th>Actual</th>
+            <th>Setpoint</th>
+        </tr>
+        <tr>
+          <td class="temperature_tool" data-bind="html: actualTempString"></td>
+          <td>
+            <input type="number" data-bind="value: newSetpoint">
+            <div class="btn-box">
+              <button class="btn btn-primary" data-bind="click: btnToggleControl">Toggle</button>
+              <span class="label" data-bind="text: isEnabled() ? 'Enabled' : 'Disabled', css: isEnabled() ? 'label-success' : 'label-danger'">dfsdfsdf</span>
+            </div>
+          </td>
+        </tr>
+
+    </table>
+</div>
