@@ -64,10 +64,11 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
                         date_string = row[0]
                         #x = datetime.strptime(date_string, TIMESTAMP_FORMAT)
                         trace1["x"].append (date_string)
-                        trace1["y"].append (float(row[1]*100))
+                        trace1["y"].append (float(row[1])*100)
                         trace2["x"].append (date_string)
-                        trace2["y"].append (float(row[2]))
-                        trace3["x"].append (date_string)
+                        if (row[2] != "None"):
+                            trace2["y"].append (float(row[2]))
+                            trace3["x"].append (date_string)
                         trace3["y"].append (float(row[3]))
                     data = {"data" : [trace1, trace2, trace3]}
                     return flask.json.jsonify (data)
@@ -187,7 +188,7 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
         if (self._enabled):
             return self._setpoint
         else:
-            return self._actual_temperature
+            return None
     def control_cleanup(self):
         self._logger.info ('Control loop cancelled - Cleaing up IOS')
         pass
