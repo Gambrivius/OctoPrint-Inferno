@@ -55,17 +55,18 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
                 log_file = self.get_plugin_data_folder() + '/temperature_log.txt'
                 with open (log_file, 'r') as file:
                     reader = csv.reader(file)
-                    trace1 = {"x" : [], "y": [], "type": "scatter", "name": "Actual Temperature"}
-                    trace2 = {"x" : [], "y": [], "type": "scatter", "name": "Power %", "yaxis": "y2" }
-                    trace3 = {"x" : [], "y": [], "type": "scatter", "name": "Target Temperature" }
+
+                    trace1 = {"x" : [], "y": [], "type": "scatter", "name": "Power %", "yaxis": "y2", "opacity": 0.90, "line": {"color": "green"}}
+                    trace2 = {"x" : [], "y": [], "type": "scatter", "name": "Target Temperature", "opacity": 0.50, "line": {"color": "yellow"}}
+                    trace3 = {"x" : [], "y": [], "type": "scatter", "name": "Actual Temperature", "line": {"color": "red"}}
 
                     for row in reader:
                         date_string = row[0]
                         #x = datetime.strptime(date_string, TIMESTAMP_FORMAT)
                         trace1["x"].append (date_string)
-                        trace1["y"].append (float(row[1]))
+                        trace1["y"].append (float(row[1]*100))
                         trace2["x"].append (date_string)
-                        trace2["y"].append (float(row[2])*100)
+                        trace2["y"].append (float(row[2]))
                         trace3["x"].append (date_string)
                         trace3["y"].append (float(row[3]))
                     data = {"data" : [trace1, trace2, trace3]}
@@ -113,9 +114,10 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
         with open (log_file, 'a+') as file:
             #x = octoprint.util.get_formatted_datetime (datetime.now())
             x =  datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            y = self._actual_temperature
-            y2 = self._duty_cycle
-            y3 = self._setpoint
+
+            y = self._duty_cycle
+            y2 = self.target_temperature()
+            y3 = self._actual_temperature
             file.write ('%s,%s,%s,%s\n' %(x, y, y2, y3))
             file.close()
             return y
@@ -181,7 +183,11 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
             self.log_data()
         if (time.time()-self._broadcast_interval>= self._last_broadcast_time):
             self.broadcast()
-
+    def target_temperature(self):
+        if (self._enabled):
+            return self._setpoint
+        else:
+            return self._actual_temperature
     def control_cleanup(self):
         self._logger.info ('Control loop cancelled - Cleaing up IOS')
         pass
@@ -193,7 +199,7 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
         self._last_broadcast_time = time.time()
         self._plugin_manager.send_plugin_message(self._identifier, dict(actual_temperature=self._actual_temperature,
                                                                         duty_cycle=self._duty_cycle*100,
-                                                                        set_point=self._setpoint))
+                                                                        set_point=self.target_temperature()))
 
     def control_begin (self):
         self._control_loop = RepeatedTimer(0, self.control_cycle, on_finish = self.control_cleanup)

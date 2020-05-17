@@ -75,17 +75,18 @@ $(function() {
           //    Plotly.style('chamber_plot', 'data', this.plot_data);
           //});
           var time = new Date();
+
           var trace1 = {
-            x:  [[time]],
-            y: [[self.actualTemp()]]
-          }
-          var trace2 = {
             x:  [[time]],
             y: [[self.dutyCycle()]]
           }
-          var trace3 = {
+          var trace2 = {
             x:  [[time]],
             y: [[self.setPoint()]]
+          }
+          var trace3 = {
+            x:  [[time]],
+            y: [[self.actualTemp()]]
           }
           Plotly.extendTraces('chamber_plot', trace1, [0]);
           Plotly.extendTraces('chamber_plot', trace2, [1]);
@@ -152,7 +153,7 @@ $(function() {
         // dependencies have already been initialized. It is especially guaranteed that this method
         // gets called _after_ the settings have been retrieved from the OctoPrint backend and thus
         // the SettingsViewModel been properly populated.
-        
+
         self.onStartupComplete = function() {
             self.makePlot();
             self.getValuesFromPlugin();
