@@ -1,6 +1,8 @@
 # OctoPrint-Inferno
 
-**TODO:** Describe what your plugin does.
+Inferno is a barebones plugin for control and logging of your 3D printer's heated chamber.  Being barebones, it supports only my intended implementation, because I am too lazy and selfish to implement support for every type of temperature sensor or devices.  Maybe that will change in the future, but for now, I hope your implementation matches my own.
+
+This plugin assumes you are using a One-Wire temperature sensor to measure chamber temperature.  It supports two GPIO outputs.  One output is always on when heating is enabled and is intended to control a fan, while the other is pulsed with a duty cycle to precisely control the temperature of your chamber.  I recommend using an NPN transistor circuit on your outputs to protect your GPIOs from burning out.  If you're not the electronics type, I'm sure you can find a RaspberryPi shield with outputs meant for driving relays.  
 
 ## Setup
 
@@ -9,9 +11,3 @@ or manually using this URL:
 
     https://github.com/Gambrivius/OctoPrint-Inferno/archive/master.zip
 
-**TODO:** Describe how to install your plugin, if more needs to be done than just installing it via pip or through
-the plugin manager.
-
-## Configuration
-
-**TODO:** Describe your plugin's configuration options (if any).
