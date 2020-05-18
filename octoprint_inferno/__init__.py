@@ -18,8 +18,24 @@ import csv
 from datetime import datetime
 import os
 from simple_pid import PID
+import RPi.GPIO as GPIO
+from w1thermsensor import W1ThermSensor
 
+#probe_serial = '28-000005553f64'
 
+class OutputWrapper:
+    state = False
+    pin = None
+    def __init__ (self, pin, state = GPIO.LOW):
+        self.state = state
+        self.pin = pin
+        GPIO.setup (self.pin, GPIO.OUT)
+        GPIO.output (self.pin, state)
+    def on (self):
+        GPIO.output (self.pin, GPIO.HIGH)
+    def off (self):
+        GPIO.output (self.pin, GPIO.LOW)
+        
 class InfernoPlugin(octoprint.plugin.SettingsPlugin,
                     octoprint.plugin.AssetPlugin,
                     octoprint.plugin.TemplatePlugin,
@@ -65,10 +81,10 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
                         #x = datetime.strptime(date_string, TIMESTAMP_FORMAT)
                         trace1["x"].append (date_string)
                         trace1["y"].append (float(row[1])*100)
-                        trace2["x"].append (date_string)
                         if (row[2] != "None"):
                             trace2["y"].append (float(row[2]))
-                            trace3["x"].append (date_string)
+                            trace2["x"].append (date_string)
+                        trace3["x"].append (date_string)
                         trace3["y"].append (float(row[3]))
                     data = {"data" : [trace1, trace2, trace3]}
                     return flask.json.jsonify (data)
@@ -147,10 +163,10 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
         self._enabled = False
         self.pid = PID(1, 0.1, 0.05, setpoint=1)
         self.pid.output_limits = (0, 1)
+        self.pid.sample_time = 2.0
+        self.sensor = W1ThermSensor()
+        GPIO.setmode(GPIO.BCM)
         self._setpoint = 55
-        self._fan_pin = 12
-        self._heater_pin = 13
-        self._w1_serial = ""
         self._last_log_time = 0
         self._log_interval = 5 # log every n seconds
         self._broadcast_interval = 5
@@ -159,10 +175,12 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
         self._v = 0
         self._duty_cycle = 0
         self.get_temperature()
+        self.fan = OutputWrapper (13)
+        self.heat = OutputWrapper (12)
 
     def get_temperature (self):
         # TODO: Read data from one wire
-        self._actual_temperature = 25
+        self._actual_temperature = round(self.sensor.get_temperature(), 1)
         if (self._setpoint != 0):
             self._v = self._actual_temperature / self._setpoint
         else:
@@ -170,12 +188,24 @@ class InfernoPlugin(octoprint.plugin.SettingsPlugin,
 
     def control_cycle (self):
         if (self._enabled):
+            self.fan.on()
             self._duty_cycle = self.pid (self._v)
         else:
+            self.fan.off()
             self._duty_cycle = 0
 
         # TODO: turn heaters on and off
-        time.sleep (2.0)
+        if (self._enabled):
+            cycle_time = 2.0
+            self._duty_cycle = max(0, min(self._duty_cycle, 1))
+            on_time = max(0, min(cycle_time * self._duty_cycle, cycle_time))
+            off_time = max(0, min(cycle_time-on_time, cycle_time))
+            self.heat.on()
+            time.sleep (on_time)
+            self.heat.off()
+            time.sleep (off_time)
+        else:
+            time.sleep (2.0)
         self.get_temperature()
 
         # update logs and clients
