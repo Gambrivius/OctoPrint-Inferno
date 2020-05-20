@@ -12,6 +12,8 @@ This plugin assumes you are using a One-Wire temperature sensor to measure chamb
    - GND to GND (Physical Pin 6)
 
 ![A screenshot with TouchUI](https://github.com/Gambrivius/OctoPrint-Inferno/blob/master/screenshot.png)
+
+![A screenshot with TouchUI](https://github.com/Gambrivius/OctoPrint-Inferno/blob/master/screenshot2.png)
 ## Setup
 
 Install via the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bundledplugins/pluginmanager.html)
