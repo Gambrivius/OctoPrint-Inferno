@@ -33,7 +33,7 @@ plugin_url = "https://github.com/Gambrivius/OctoPrint-Inferno"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ["simple-pid==0.2.4", "RPi.GPIO==0.7.0","w1thermsensor=1.3.0"]
+plugin_requires = ["simple-pid==0.2.4", "RPi.GPIO==0.7.0","w1thermsensor==1.3.0"]
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
